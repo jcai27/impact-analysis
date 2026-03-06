@@ -84,10 +84,10 @@ def _is_bot(name: str) -> bool:
 def _generate_llm_summaries(
     engineers: list[dict],
     author_stats: dict,
-) -> dict[str, list[str]]:
-    """Call OpenAI to generate rich per-engineer bullet summaries.
+) -> dict[str, dict]:
+    """Call OpenAI to generate per-engineer bullet summaries and a skills description.
 
-    Returns a dict mapping engineer name → list of bullet strings.
+    Returns a dict mapping engineer name → {"bullets": [...], "skills": "..."}.
     Falls back gracefully to an empty dict on any error.
     """
     api_key = os.getenv("OPENAI_API_KEY", "").strip()
@@ -101,7 +101,7 @@ def _generate_llm_summaries(
         return {}
 
     model = os.getenv("IMPACT_LLM_MODEL", "gpt-4.1-mini")
-    summaries: dict[str, list[str]] = {}
+    summaries: dict[str, dict] = {}
 
     for eng in engineers:
         name = eng["name"]
@@ -126,24 +126,38 @@ def _generate_llm_summaries(
             "Write exactly 3 bullet points (start each line with •) describing what "
             "this engineer accomplished. Be specific about what they built or fixed based "
             "on the commits above. Focus on technical and business impact. "
-            "Each bullet is one sentence, max 110 characters. Plain text only."
+            "Each bullet is one sentence, max 110 characters.\n\n"
+            "Then on a new line write:\n"
+            "Skills: [a concise phrase of 4-8 words describing their core technical strengths "
+            "based on the work above, e.g. 'distributed systems, query optimisation, API design']\n\n"
+            "Plain text only."
         )
 
         try:
             resp = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=220,
+                max_tokens=260,
                 temperature=0.3,
             )
             text = (resp.choices[0].message.content or "").strip()
+            lines = text.splitlines()
+
             bullets = [
                 line.lstrip("•·- ").strip()
-                for line in text.splitlines()
+                for line in lines
                 if line.strip() and not line.strip().startswith("#")
+                and not line.lower().startswith("skills:")
             ][:3]
+
+            skills = ""
+            for line in lines:
+                if line.lower().startswith("skills:"):
+                    skills = line.split(":", 1)[1].strip()
+                    break
+
             if bullets:
-                summaries[name] = bullets
+                summaries[name] = {"bullets": bullets, "skills": skills}
         except Exception:
             pass
 
@@ -348,10 +362,13 @@ def top5_engineers(db_path: str = settings.db_path) -> dict:
 
     # Attach cached LLM summaries (overwrite heuristic highlights when available).
     for eng in engineers:
-        llm_bullets = _summaries.get(eng["name"])
-        if llm_bullets:
-            eng["highlights"] = llm_bullets
+        llm_data = _summaries.get(eng["name"])
+        if llm_data:
+            eng["highlights"] = llm_data["bullets"]
+            eng["skills"] = llm_data.get("skills", "")
             eng["summary_source"] = "llm"
+        else:
+            eng.setdefault("skills", "")
 
     total_commits = sum(s.get("commits", 0) for s in author_stats.values())
 

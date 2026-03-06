@@ -19,6 +19,25 @@ class SemanticCommit:
 def infer_type(message: str, changed_files: list[str]) -> tuple[str, float]:
     m = message.lower()
 
+    # Conventional commit prefixes — highest confidence, check first.
+    if m.startswith(("fix:", "fix(", "fix!:")):
+        return "bugfix", 0.97
+    if m.startswith(("feat:", "feat(", "feat!:")):
+        return "feature", 0.97
+    if m.startswith(("docs:", "docs(")):
+        return "docs", 0.97
+    if m.startswith(("chore:", "chore(")):
+        return "infrastructure", 0.95
+    if m.startswith(("revert:", "revert(")):
+        return "refactor", 0.95
+    if m.startswith(("refactor:", "refactor(")):
+        return "refactor", 0.97
+    if m.startswith(("test:", "test(", "tests:", "tests(")):
+        return "tests", 0.97
+    if m.startswith(("ci:", "ci(", "build:", "build(")):
+        return "infrastructure", 0.95
+
+    # Keyword fallback for non-conventional messages.
     if any(k in m for k in ("fix", "bug", "hotfix", "error")):
         return "bugfix", 0.9
     if any(k in m for k in ("refactor", "cleanup", "restructure")):

@@ -111,8 +111,8 @@ class GitHubFetcher:
                     ),
                 }
             )
-            # Small sleep to stay well within GitHub's secondary rate limits.
-            time.sleep(0.05)
+            # Stay within GitHub's secondary rate limit (≤900 req/min).
+            time.sleep(0.08)
 
         if progress:
             progress(f"Fetched {len(records)} commits. Running analysis…")

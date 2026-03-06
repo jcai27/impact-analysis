@@ -45,52 +45,32 @@
       align-items: center;
       gap: 16px;
     }
-    .logo {
-      font-family: "Lora", Georgia, serif;
-      font-size: 17px;
-      font-weight: 600;
-      letter-spacing: -0.2px;
-      color: var(--ink);
-      flex-shrink: 0;
-    }
+    .logo { font-family: "Lora", Georgia, serif; font-size: 17px; font-weight: 600; letter-spacing: -0.2px; color: var(--ink); flex-shrink: 0; }
     .logo em { font-style: normal; color: var(--accent); }
     .header-divider { width: 1px; height: 18px; background: var(--border); flex-shrink: 0; }
-    .header-subtitle {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--muted);
-      letter-spacing: 0.01em;
-      flex-shrink: 0;
-    }
+    .header-subtitle { font-size: 12px; font-weight: 500; color: var(--muted); letter-spacing: 0.01em; flex-shrink: 0; }
     .header-right { margin-left: auto; display: flex; align-items: center; gap: 18px; }
-    .header-meta  { display: flex; align-items: center; gap: 18px; }
-    .meta-item    { font-size: 11px; color: var(--faint); letter-spacing: 0.01em; }
+    .header-meta { display: flex; align-items: center; gap: 18px; }
+    .meta-item { font-size: 11px; color: var(--faint); letter-spacing: 0.01em; }
     .meta-item strong { color: var(--muted); font-weight: 600; }
 
     .btn-refresh {
       display: inline-flex; align-items: center; gap: 5px;
       padding: 5px 11px; border-radius: 4px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      font-family: "Inter", sans-serif;
-      font-size: 11px; font-weight: 600;
-      color: var(--muted); cursor: pointer;
-      letter-spacing: 0.02em;
-      transition: background 0.1s, border-color 0.1s, color 0.1s;
-      white-space: nowrap;
+      border: 1px solid var(--border); background: var(--surface);
+      font-family: "Inter", sans-serif; font-size: 11px; font-weight: 600;
+      color: var(--muted); cursor: pointer; letter-spacing: 0.02em;
+      transition: background 0.1s, color 0.1s; white-space: nowrap;
     }
-    .btn-refresh:hover:not(:disabled) { background: var(--bg); border-color: var(--border); color: var(--text); }
+    .btn-refresh:hover:not(:disabled) { background: var(--bg); color: var(--text); }
     .btn-refresh:disabled { opacity: 0.45; cursor: not-allowed; }
     .btn-icon { font-size: 12px; }
     .btn-refresh.spinning .btn-icon { animation: spin 0.7s linear infinite; display: inline-block; }
 
     /* ── Status bar ── */
     .status-bar {
-      margin: 10px 32px 0;
-      padding: 7px 12px;
-      background: var(--surface);
-      border: 1px solid var(--border-lt);
-      border-radius: 4px;
+      margin: 10px 32px 0; padding: 7px 12px;
+      background: var(--surface); border: 1px solid var(--border-lt); border-radius: 4px;
       font-size: 11.5px; color: var(--muted);
       display: flex; align-items: center; gap: 8px;
     }
@@ -106,102 +86,57 @@
 
     /* ── Methodology ── */
     .methodology {
-      margin: 10px 32px 0;
-      padding: 11px 16px;
-      background: var(--surface);
-      border: 1px solid var(--border-lt);
-      border-radius: 4px;
-      font-size: 11.5px; color: var(--muted); line-height: 1.65;
+      margin: 10px 32px 0; padding: 11px 16px;
+      background: var(--surface); border: 1px solid var(--border-lt);
+      border-radius: 4px; font-size: 11.5px; color: var(--muted); line-height: 1.65;
     }
     .methodology .method-label {
-      font-family: "Lora", Georgia, serif;
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--faint);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      display: block;
-      margin-bottom: 4px;
+      font-family: "Lora", Georgia, serif; font-size: 11px; font-weight: 500;
+      color: var(--faint); text-transform: uppercase; letter-spacing: 0.08em;
+      display: block; margin-bottom: 4px;
     }
 
     /* ── Dashboard grid ── */
     .dashboard {
       padding: 14px 32px 0;
-      display: grid;
-      grid-template-columns: 250px 1fr;
-      gap: 14px;
-      align-items: start;
+      display: grid; grid-template-columns: 250px 1fr;
+      gap: 14px; align-items: start;
     }
 
     /* ── Panel ── */
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      padding: 16px 18px;
-    }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 16px 18px; }
     .panel-title {
-      font-family: "Lora", Georgia, serif;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--faint);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 14px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border-lt);
+      font-family: "Lora", Georgia, serif; font-size: 12px; font-weight: 500;
+      color: var(--faint); text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border-lt);
     }
 
     /* ── Leaderboard ── */
     .leaderboard-list { display: flex; flex-direction: column; gap: 6px; }
-    .lb-row {
-      display: flex; align-items: center; gap: 10px;
-      padding: 6px 8px; border-radius: 4px;
-      cursor: default; transition: background 0.1s;
-    }
+    .lb-row { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 4px; cursor: default; transition: background 0.1s; }
     .lb-row:hover { background: var(--bg); }
-    .lb-rank {
-      font-size: 10px; font-weight: 700;
-      min-width: 18px; text-align: center;
-      font-variant-numeric: tabular-nums;
-    }
-    .lb-rank-1 { color: var(--c1); }
-    .lb-rank-2 { color: var(--c2); }
-    .lb-rank-3 { color: var(--c3); }
-    .lb-rank-4 { color: var(--c4); }
-    .lb-rank-5 { color: var(--c5); }
-    .lb-name {
-      font-size: 12px; font-weight: 500;
-      flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      color: var(--ink);
-    }
+    .lb-rank { font-size: 10px; font-weight: 700; min-width: 18px; text-align: center; font-variant-numeric: tabular-nums; }
+    .lb-rank-1 { color: var(--c1); } .lb-rank-2 { color: var(--c2); } .lb-rank-3 { color: var(--c3); }
+    .lb-rank-4 { color: var(--c4); } .lb-rank-5 { color: var(--c5); }
+    .lb-name { font-size: 12px; font-weight: 500; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink); }
     .lb-bar-wrap { width: 52px; height: 3px; background: var(--border-lt); border-radius: 2px; flex-shrink: 0; }
     .lb-bar { height: 100%; border-radius: 2px; opacity: 0.7; }
-    .lb-score {
-      font-size: 11px; font-weight: 700;
-      min-width: 24px; text-align: right;
-      font-variant-numeric: tabular-nums;
-    }
+    .lb-score { font-size: 11px; font-weight: 700; min-width: 24px; text-align: right; font-variant-numeric: tabular-nums; }
 
     /* ── Chart ── */
     .chart-panel { min-height: 200px; }
     #comparison-canvas { display: block; width: 100%; }
 
     /* ── Profiles ── */
-    .profiles {
-      padding: 14px 32px 36px;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 12px;
-    }
+    .profiles { padding: 14px 32px 36px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
 
     .profile-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      padding: 15px 14px;
-      display: flex; flex-direction: column; gap: 10px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 5px;
+      padding: 15px 14px; display: flex; flex-direction: column; gap: 10px;
+      cursor: default;
+      transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
     }
+    .profile-card:hover { box-shadow: 0 4px 20px rgba(28,25,23,0.10); border-color: #c8c3bb; transform: translateY(-1px); }
     .profile-card.rank-1 { border-top: 2px solid var(--c1); }
     .profile-card.rank-2 { border-top: 2px solid var(--c2); }
     .profile-card.rank-3 { border-top: 2px solid var(--c3); }
@@ -212,28 +147,17 @@
     .profile-badge {
       display: inline-flex; align-items: center; justify-content: center;
       width: 20px; height: 20px; border-radius: 3px;
-      font-size: 9px; font-weight: 700;
-      flex-shrink: 0; margin-top: 1px;
-      border: 1px solid var(--border-lt);
-      color: var(--muted); background: var(--bg);
+      font-size: 9px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+      border: 1px solid var(--border-lt); color: var(--muted); background: var(--bg);
     }
     .profile-name-wrap { flex: 1; min-width: 0; }
-    .profile-name {
-      font-size: 12.5px; font-weight: 600;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      color: var(--ink);
-    }
+    .profile-name { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink); }
     .profile-score { font-size: 11px; color: var(--faint); margin-top: 2px; }
     .profile-score strong { font-weight: 700; font-size: 12px; }
-
     .profile-divider { height: 1px; background: var(--border-lt); margin: 0 -14px; }
 
     .profile-pills { display: flex; flex-wrap: wrap; gap: 3px; }
-    .pill {
-      font-size: 9.5px; font-weight: 500;
-      padding: 1.5px 5px; border-radius: 3px; white-space: nowrap;
-      border: 1px solid;
-    }
+    .pill { font-size: 9.5px; font-weight: 500; padding: 1.5px 5px; border-radius: 3px; white-space: nowrap; border: 1px solid; }
     .pill-feature  { background: #eef1f8; color: var(--c1); border-color: #c8d0e8; }
     .pill-bugfix   { background: #f7ede8; color: var(--c4); border-color: #e8c8b8; }
     .pill-refactor { background: #f0edf8; color: var(--c2); border-color: #d0c8e8; }
@@ -243,67 +167,111 @@
 
     .profile-areas { display: flex; flex-wrap: wrap; gap: 3px; }
     .area-tag {
-      font-size: 9.5px; color: var(--faint);
-      background: var(--bg); border: 1px solid var(--border-lt);
-      padding: 1.5px 5px; border-radius: 3px;
+      font-size: 9.5px; color: var(--faint); background: var(--bg);
+      border: 1px solid var(--border-lt); padding: 1.5px 5px; border-radius: 3px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 85px;
     }
-
-    .profile-summary-label {
-      font-family: "Lora", Georgia, serif;
-      font-size: 9.5px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--faint);
-      margin-bottom: 5px;
-    }
+    .profile-summary-label { font-family: "Lora", Georgia, serif; font-size: 9.5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; color: var(--faint); margin-bottom: 5px; }
     .profile-bullets { list-style: none; display: flex; flex-direction: column; gap: 5px; }
-    .profile-bullets li {
-      font-size: 10.5px; color: var(--muted); line-height: 1.5;
-      padding-left: 11px; position: relative;
+    .profile-bullets li { font-size: 10.5px; color: var(--muted); line-height: 1.5; padding-left: 11px; position: relative; }
+    .profile-bullets li::before { content: "—"; position: absolute; left: 0; color: var(--faint); font-size: 9px; line-height: 1.8; }
+
+    /* ── Expand overlay ── */
+    .expand-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(28, 25, 23, 0.32);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.18s ease;
+      z-index: 100;
     }
-    .profile-bullets li::before {
-      content: "—";
-      position: absolute; left: 0;
-      color: var(--faint);
-      font-size: 9px; line-height: 1.8;
+    .expand-backdrop.visible { opacity: 1; pointer-events: auto; }
+
+    .expand-bubble {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.96);
+      width: min(660px, 92vw);
+      max-height: 82vh;
+      overflow-y: auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 20px 60px rgba(28,25,23,0.22), 0 4px 16px rgba(28,25,23,0.12);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 101;
     }
+    .expand-bubble.visible {
+      opacity: 1; pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .eb-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border-lt);
+      display: flex; align-items: flex-start; gap: 14px;
+    }
+    .eb-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 4px;
+      font-size: 11px; font-weight: 700;
+      border: 1px solid var(--border); color: var(--muted); background: var(--bg);
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .eb-name { font-family: "Lora", Georgia, serif; font-size: 18px; font-weight: 600; color: var(--ink); line-height: 1.2; }
+    .eb-score-row { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; }
+    .eb-score-big { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .eb-score-denom { font-size: 12px; color: var(--faint); }
+    .eb-commits { font-size: 11px; color: var(--faint); margin-left: 6px; }
+
+    .eb-body { padding: 18px 24px; display: grid; grid-template-columns: 180px 1fr; gap: 20px; align-items: start; }
+
+    .eb-radar-wrap { display: flex; flex-direction: column; gap: 10px; }
+    .eb-radar-label { font-family: "Lora", serif; font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); }
+    #expand-radar { display: block; }
+
+    .eb-stats { display: flex; flex-direction: column; gap: 12px; }
+    .eb-stat-row { display: flex; align-items: center; gap: 8px; }
+    .eb-stat-label { font-size: 11px; color: var(--muted); min-width: 80px; }
+    .eb-stat-bar-wrap { flex: 1; height: 4px; background: var(--border-lt); border-radius: 2px; }
+    .eb-stat-bar { height: 100%; border-radius: 2px; }
+    .eb-stat-val { font-size: 11px; font-weight: 600; min-width: 24px; text-align: right; font-variant-numeric: tabular-nums; }
+
+    .eb-divider { height: 1px; background: var(--border-lt); margin: 0 24px; }
+
+    .eb-footer { padding: 16px 24px 20px; display: flex; flex-direction: column; gap: 14px; }
+
+    .eb-areas-wrap { display: flex; flex-wrap: wrap; gap: 4px; }
+    .eb-area-tag {
+      font-size: 10px; color: var(--muted); background: var(--bg);
+      border: 1px solid var(--border-lt); padding: 2px 7px; border-radius: 3px;
+    }
+
+    .eb-skills-wrap { display: flex; align-items: baseline; gap: 10px; padding: 8px 12px; background: var(--bg); border: 1px solid var(--border-lt); border-radius: 4px; }
+    .eb-skills-label { font-family: "Lora", serif; font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); white-space: nowrap; flex-shrink: 0; }
+    .eb-skills-text { font-size: 12px; font-weight: 500; color: var(--ink); }
+    .eb-summary-label { font-family: "Lora", serif; font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); margin-bottom: 6px; }
+    .eb-bullets { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .eb-bullets li { font-size: 12px; color: var(--muted); line-height: 1.6; padding-left: 14px; position: relative; }
+    .eb-bullets li::before { content: "—"; position: absolute; left: 0; color: var(--faint); font-size: 10px; line-height: 1.8; }
 
     /* ── Full-page states ── */
-    .state {
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; padding: 60px 32px; text-align: center; gap: 12px;
-    }
+    .state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 32px; text-align: center; gap: 12px; }
     .state h2 { font-family: "Lora", serif; font-size: 17px; font-weight: 500; }
     .state p { font-size: 12.5px; color: var(--muted); max-width: 420px; line-height: 1.65; }
     .state code {
       display: block; background: var(--surface); border: 1px solid var(--border);
       border-radius: 4px; padding: 10px 16px; font-size: 11.5px;
       font-family: "Fira Code", "Cascadia Code", "Consolas", monospace;
-      color: var(--text); text-align: left; max-width: 520px;
-      white-space: pre-wrap; word-break: break-all;
+      color: var(--text); text-align: left; max-width: 520px; white-space: pre-wrap; word-break: break-all;
     }
-    .spinner {
-      width: 24px; height: 24px;
-      border: 2px solid var(--border); border-top-color: var(--accent-lt);
-      border-radius: 50%; animation: spin 0.7s linear infinite;
-    }
+    .spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--accent-lt); border-radius: 50%; animation: spin 0.7s linear infinite; }
 
-    @media (max-width: 1100px) {
-      .dashboard  { grid-template-columns: 220px 1fr; }
-      .profiles   { grid-template-columns: repeat(3, 1fr); }
-    }
-    @media (max-width: 760px) {
-      .dashboard  { grid-template-columns: 1fr; }
-      .profiles   { grid-template-columns: repeat(2, 1fr); }
-      header      { flex-wrap: wrap; }
-      .header-meta { display: none; }
-    }
-    @media (max-width: 480px) {
-      .profiles   { grid-template-columns: 1fr; }
-      .dashboard, .profiles, .methodology, .status-bar { padding-left: 14px; padding-right: 14px; }
-    }
+    @media (max-width: 1100px) { .dashboard { grid-template-columns: 220px 1fr; } .profiles { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 760px)  { .dashboard { grid-template-columns: 1fr; } .profiles { grid-template-columns: repeat(2, 1fr); } header { flex-wrap: wrap; } .header-meta { display: none; } }
+    @media (max-width: 480px)  { .profiles { grid-template-columns: 1fr; } .dashboard, .profiles, .methodology, .status-bar { padding-left: 14px; padding-right: 14px; } }
 
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
@@ -335,160 +303,230 @@
 </div>
 
 <div class="status-bar hidden" id="status-bar"></div>
-
 <div id="app">
-  <div class="state">
-    <div class="spinner"></div>
-    <p>Loading analysis data…</p>
-  </div>
+  <div class="state"><div class="spinner"></div><p>Loading analysis data…</p></div>
 </div>
+
+<!-- Expand overlay -->
+<div class="expand-backdrop" id="expand-backdrop"></div>
+<div class="expand-bubble" id="expand-bubble"></div>
 
 <script>
 const RANK_COLORS = ["#1d3a6e","#5c4a8a","#2d6a52","#8b3a20","#7a5c1e"];
+const DIMS = ["feature_delivery","system_impact","ownership","maintenance","collaboration"];
+const DIM_LABELS = ["Feature","System","Ownership","Quality","Collab"];
+
+// ── Radar ─────────────────────────────────────────────────────────────────────
+function drawRadar(canvas, values, color) {
+  const dpr  = window.devicePixelRatio || 1;
+  const size = canvas.clientWidth;
+  canvas.width  = size * dpr;
+  canvas.height = size * dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+  const cx = size/2, cy = size/2, r = size/2 - 18;
+  const n = DIMS.length, step = (2*Math.PI)/n, off = -Math.PI/2;
+
+  for (let lvl = 1; lvl <= 4; lvl++) {
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const a = off + i*step, lr = r*lvl/4;
+      i===0 ? ctx.moveTo(cx+lr*Math.cos(a), cy+lr*Math.sin(a))
+            : ctx.lineTo(cx+lr*Math.cos(a), cy+lr*Math.sin(a));
+    }
+    ctx.closePath(); ctx.strokeStyle="#e8e4dc"; ctx.lineWidth=1; ctx.stroke();
+  }
+  for (let i = 0; i < n; i++) {
+    const a = off + i*step;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+r*Math.cos(a), cy+r*Math.sin(a));
+    ctx.strokeStyle="#e8e4dc"; ctx.lineWidth=1; ctx.stroke();
+  }
+  ctx.beginPath();
+  for (let i = 0; i < n; i++) {
+    const a = off + i*step, val = ((values[i]||0)/100)*r;
+    i===0 ? ctx.moveTo(cx+val*Math.cos(a), cy+val*Math.sin(a))
+          : ctx.lineTo(cx+val*Math.cos(a), cy+val*Math.sin(a));
+  }
+  ctx.closePath(); ctx.fillStyle=color+"28"; ctx.fill(); ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+  for (let i = 0; i < n; i++) {
+    const a = off + i*step, val = ((values[i]||0)/100)*r;
+    ctx.beginPath(); ctx.arc(cx+val*Math.cos(a), cy+val*Math.sin(a), 3, 0, 2*Math.PI);
+    ctx.fillStyle=color; ctx.fill();
+  }
+  ctx.font = `9px "Inter",-apple-system,sans-serif`; ctx.textAlign="center"; ctx.textBaseline="middle";
+  for (let i = 0; i < n; i++) {
+    const a = off + i*step, lr = r+13;
+    ctx.fillStyle="#a8a29e"; ctx.fillText(DIM_LABELS[i], cx+lr*Math.cos(a), cy+lr*Math.sin(a));
+  }
+}
 
 // ── Comparison chart ──────────────────────────────────────────────────────────
 function drawComparisonChart(canvas, engineers, avgScore) {
   const dpr  = window.devicePixelRatio || 1;
   const W    = canvas.clientWidth;
   const H    = engineers.length * 46 + 46;
-  canvas.style.height = H + "px";
-  canvas.width  = W * dpr;
-  canvas.height = H * dpr;
+  canvas.style.height = H + "px"; canvas.width = W*dpr; canvas.height = H*dpr;
   const ctx = canvas.getContext("2d");
   ctx.scale(dpr, dpr);
+  const padL=136, padR=50, padT=22, padB=24, chartW=W-padL-padR;
+  const rowH=(H-padT-padB)/engineers.length, barH=14;
 
-  const padL = 136, padR = 50, padT = 22, padB = 24;
-  const chartW = W - padL - padR;
-  const rowH   = (H - padT - padB) / engineers.length;
-  const barH   = 14;
-
-  // Gridlines + x-axis labels
   ctx.font = `10px "Inter",-apple-system,sans-serif`;
-  for (let v = 0; v <= 10; v += 2) {
-    const x = padL + (v / 10) * chartW;
-    ctx.beginPath();
-    ctx.moveTo(x, padT);
-    ctx.lineTo(x, H - padB);
-    ctx.strokeStyle = v === 0 ? "#c8c3bb" : "#e8e4dc";
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    ctx.textAlign = "center";
-    ctx.textBaseline = "top";
-    ctx.fillStyle = "#a8a29e";
-    ctx.fillText(v, x, H - padB + 5);
+  for (let v=0; v<=10; v+=2) {
+    const x = padL+(v/10)*chartW;
+    ctx.beginPath(); ctx.moveTo(x,padT); ctx.lineTo(x,H-padB);
+    ctx.strokeStyle = v===0?"#c8c3bb":"#e8e4dc"; ctx.lineWidth=1; ctx.stroke();
+    ctx.textAlign="center"; ctx.textBaseline="top"; ctx.fillStyle="#a8a29e";
+    ctx.fillText(v, x, H-padB+5);
   }
-
-  // Bars
   engineers.forEach((eng, i) => {
-    const y    = padT + i * rowH + (rowH - barH) / 2;
-    const bW   = Math.max((eng.display_score / 10) * chartW, 4);
+    const y = padT+i*rowH+(rowH-barH)/2;
+    const bW = Math.max((eng.display_score/10)*chartW, 4);
     const color = RANK_COLORS[i];
-
-    // Track (background bar)
-    ctx.fillStyle = "#eeebe4";
-    roundRect(ctx, padL, y, chartW, barH, 2);
-    ctx.fill();
-
-    // Fill bar
-    ctx.globalAlpha = 0.82;
-    ctx.fillStyle = color;
-    roundRect(ctx, padL, y, bW, barH, 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
-
-    // Name
-    ctx.font = `500 11px "Inter",-apple-system,sans-serif`;
-    ctx.textAlign = "right";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#292524";
-    const shortName = eng.name.split(" ").slice(0, 2).join(" ");
-    ctx.fillText(shortName, padL - 9, y + barH / 2);
-
-    // Score
-    ctx.font = `600 10.5px "Inter",-apple-system,sans-serif`;
-    ctx.textAlign = "left";
-    ctx.fillStyle = color;
-    ctx.fillText(eng.display_score.toFixed(1), padL + bW + 6, y + barH / 2);
+    ctx.fillStyle="#eeebe4"; roundRect(ctx,padL,y,chartW,barH,2); ctx.fill();
+    ctx.globalAlpha=0.82; ctx.fillStyle=color; roundRect(ctx,padL,y,bW,barH,2); ctx.fill(); ctx.globalAlpha=1;
+    ctx.font=`500 11px "Inter",-apple-system,sans-serif`; ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.fillStyle="#292524";
+    ctx.fillText(eng.name.split(" ").slice(0,2).join(" "), padL-9, y+barH/2);
+    ctx.font=`600 10.5px "Inter",-apple-system,sans-serif`; ctx.textAlign="left"; ctx.fillStyle=color;
+    ctx.fillText(eng.display_score.toFixed(1), padL+bW+6, y+barH/2);
   });
-
-  // Average line
   if (avgScore != null) {
-    const ax = padL + (avgScore / 10) * chartW;
-    ctx.save();
-    ctx.setLineDash([3, 3]);
-    ctx.beginPath();
-    ctx.moveTo(ax, padT - 6);
-    ctx.lineTo(ax, H - padB);
-    ctx.strokeStyle = "#b8b0a4";
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    ctx.restore();
-
-    ctx.font = `500 9px "Inter",-apple-system,sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "bottom";
-    ctx.fillStyle = "#a8a29e";
-    ctx.fillText("avg " + avgScore.toFixed(1), ax, padT - 7);
+    const ax = padL+(avgScore/10)*chartW;
+    ctx.save(); ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(ax,padT-6); ctx.lineTo(ax,H-padB);
+    ctx.strokeStyle="#b8b0a4"; ctx.lineWidth=1.5; ctx.stroke(); ctx.restore();
+    ctx.font=`500 9px "Inter",-apple-system,sans-serif`; ctx.textAlign="center"; ctx.textBaseline="bottom"; ctx.fillStyle="#a8a29e";
+    ctx.fillText("avg "+avgScore.toFixed(1), ax, padT-7);
   }
 }
 
 function roundRect(ctx, x, y, w, h, r) {
-  r = Math.min(r, w / 2, h / 2);
+  r = Math.min(r, w/2, h/2);
   ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
 }
 
 // ── Leaderboard ───────────────────────────────────────────────────────────────
 function renderLeaderboard(engineers) {
-  const rows = engineers.map((eng, i) => {
-    const color = RANK_COLORS[i];
-    const pct   = (eng.display_score / 10 * 100).toFixed(1);
-    return `
-      <div class="lb-row">
-        <span class="lb-rank lb-rank-${eng.rank}">${eng.rank}</span>
-        <span class="lb-name" title="${eng.name}">${eng.name}</span>
-        <div class="lb-bar-wrap">
-          <div class="lb-bar" style="width:${pct}%;background:${color}"></div>
-        </div>
-        <span class="lb-score" style="color:${color}">${eng.display_score.toFixed(1)}</span>
-      </div>`;
+  const rows = engineers.map((eng,i) => {
+    const color=RANK_COLORS[i], pct=(eng.display_score/10*100).toFixed(1);
+    return `<div class="lb-row">
+      <span class="lb-rank lb-rank-${eng.rank}">${eng.rank}</span>
+      <span class="lb-name" title="${eng.name}">${eng.name}</span>
+      <div class="lb-bar-wrap"><div class="lb-bar" style="width:${pct}%;background:${color}"></div></div>
+      <span class="lb-score" style="color:${color}">${eng.display_score.toFixed(1)}</span>
+    </div>`;
   }).join("");
-
   const panel = document.createElement("div");
   panel.className = "panel";
   panel.innerHTML = `<div class="panel-title">Ranking</div><div class="leaderboard-list">${rows}</div>`;
   return panel;
 }
 
-// ── Profile card ──────────────────────────────────────────────────────────────
+// ── Pills ─────────────────────────────────────────────────────────────────────
 function pillsHTML(stats) {
   return [
-    { key: "features",       label: "Feature",  cls: "pill-feature"  },
-    { key: "bugfixes",       label: "Bug fix",  cls: "pill-bugfix"   },
-    { key: "refactors",      label: "Refactor", cls: "pill-refactor" },
-    { key: "tests",          label: "Test",     cls: "pill-tests"    },
-    { key: "infrastructure", label: "Infra",    cls: "pill-infra"    },
-    { key: "docs",           label: "Doc",      cls: "pill-docs"     },
-  ]
-  .filter(p => stats[p.key] > 0)
-  .map(p => `<span class="pill ${p.cls}">${stats[p.key]}&thinsp;${p.label}${stats[p.key] > 1 ? "s" : ""}</span>`)
-  .join("");
+    { key:"features",       label:"Feature",  cls:"pill-feature"  },
+    { key:"bugfixes",       label:"Bug fix",  cls:"pill-bugfix"   },
+    { key:"refactors",      label:"Refactor", cls:"pill-refactor" },
+    { key:"tests",          label:"Test",     cls:"pill-tests"    },
+    { key:"infrastructure", label:"Infra",    cls:"pill-infra"    },
+    { key:"docs",           label:"Doc",      cls:"pill-docs"     },
+  ].filter(p=>stats[p.key]>0)
+   .map(p=>`<span class="pill ${p.cls}">${stats[p.key]}&thinsp;${p.label}${stats[p.key]>1?"s":""}</span>`)
+   .join("");
 }
 
-function renderProfile(eng) {
-  const color   = RANK_COLORS[eng.rank - 1];
-  const areas   = eng.top_areas.map(a => `<span class="area-tag" title="${a}">${a}</span>`).join("");
-  const bullets = eng.highlights.map(h => `<li>${h}</li>`).join("");
+// ── Expand bubble ─────────────────────────────────────────────────────────────
+let _hideTimer = null;
+
+function showExpand(eng, idx) {
+  clearTimeout(_hideTimer);
+  const color   = RANK_COLORS[idx];
+  const bubble  = document.getElementById("expand-bubble");
+  const backdrop = document.getElementById("expand-backdrop");
+
+  const areas   = eng.top_areas.map(a=>`<span class="eb-area-tag">${a}</span>`).join("");
+  const bullets = eng.highlights.map(h=>`<li>${h}</li>`).join("");
+  const label   = eng.summary_source === "llm" ? "Summary" : "Highlights";
+
+  // Stat bars — normalise within the expand view
+  const statDefs = [
+    { key:"features",       label:"Features",   val: eng.stats.features       },
+    { key:"bugfixes",       label:"Bug fixes",  val: eng.stats.bugfixes       },
+    { key:"refactors",      label:"Refactors",  val: eng.stats.refactors      },
+    { key:"tests",          label:"Tests",      val: eng.stats.tests          },
+    { key:"high_complexity",label:"High cmplx", val: eng.stats.high_complexity},
+  ];
+  const maxVal = Math.max(...statDefs.map(s=>s.val), 1);
+  const statRows = statDefs.filter(s=>s.val>0).map(s => {
+    const pct = (s.val/maxVal*100).toFixed(1);
+    return `<div class="eb-stat-row">
+      <span class="eb-stat-label">${s.label}</span>
+      <div class="eb-stat-bar-wrap"><div class="eb-stat-bar" style="width:${pct}%;background:${color}99"></div></div>
+      <span class="eb-stat-val" style="color:${color}">${s.val}</span>
+    </div>`;
+  }).join("");
+
+  bubble.innerHTML = `
+    <div class="eb-header">
+      <div class="eb-badge" style="border-color:${color}44;color:${color}">${eng.rank}</div>
+      <div>
+        <div class="eb-name">${eng.name}</div>
+        <div class="eb-score-row">
+          <span class="eb-score-big" style="color:${color}">${eng.display_score.toFixed(1)}</span>
+          <span class="eb-score-denom">/ 10</span>
+          <span class="eb-commits">${eng.stats.commits} commits</span>
+        </div>
+      </div>
+    </div>
+    <div class="eb-body">
+      <div class="eb-radar-wrap">
+        <div class="eb-radar-label">Dimensions</div>
+        <canvas id="expand-radar" style="width:168px;height:168px;"></canvas>
+      </div>
+      <div class="eb-stats">${statRows}</div>
+    </div>
+    <div class="eb-divider"></div>
+    <div class="eb-footer">
+      ${eng.skills ? `<div class="eb-skills-wrap"><span class="eb-skills-label">Core expertise</span><span class="eb-skills-text">${eng.skills}</span></div>` : ""}
+      ${areas ? `<div><div class="eb-summary-label">Key areas</div><div class="eb-areas-wrap">${areas}</div></div>` : ""}
+      <div>
+        <div class="eb-summary-label">${label}</div>
+        <ul class="eb-bullets">${bullets}</ul>
+      </div>
+    </div>`;
+
+  backdrop.classList.add("visible");
+  bubble.classList.add("visible");
+
+  requestAnimationFrame(() => {
+    const cv = document.getElementById("expand-radar");
+    if (cv) drawRadar(cv, DIMS.map(d=>eng.radar[d]||0), color);
+  });
+}
+
+function hideExpand() {
+  document.getElementById("expand-bubble").classList.remove("visible");
+  document.getElementById("expand-backdrop").classList.remove("visible");
+}
+
+// Keep bubble open when cursor moves from card to bubble
+document.getElementById("expand-backdrop").addEventListener("mouseenter", () => {
+  _hideTimer = setTimeout(hideExpand, 80);
+});
+document.getElementById("expand-bubble").addEventListener("mouseenter", () => clearTimeout(_hideTimer));
+document.getElementById("expand-bubble").addEventListener("mouseleave", () => hideExpand());
+document.getElementById("expand-backdrop").addEventListener("click", hideExpand);
+
+// ── Profile card ──────────────────────────────────────────────────────────────
+function renderProfile(eng, idx) {
+  const color   = RANK_COLORS[idx];
+  const areas   = eng.top_areas.map(a=>`<span class="area-tag" title="${a}">${a}</span>`).join("");
+  const bullets = eng.highlights.map(h=>`<li>${h}</li>`).join("");
   const label   = eng.summary_source === "llm" ? "Summary" : "Highlights";
   const pills   = pillsHTML(eng.stats);
 
@@ -512,6 +550,15 @@ function renderProfile(eng) {
       <div class="profile-summary-label">${label}</div>
       <ul class="profile-bullets">${bullets}</ul>
     </div>`;
+
+  card.addEventListener("mouseenter", () => {
+    clearTimeout(_hideTimer);
+    showExpand(eng, idx);
+  });
+  card.addEventListener("mouseleave", () => {
+    _hideTimer = setTimeout(hideExpand, 80);
+  });
+
   return card;
 }
 
@@ -519,60 +566,35 @@ function renderProfile(eng) {
 function setStatus(status, message) {
   const bar = document.getElementById("status-bar");
   bar.className = `status-bar ${status}`;
-  bar.innerHTML = status === "running"
-    ? `<div class="inline-spinner"></div>${message}`
-    : message;
+  bar.innerHTML = status==="running" ? `<div class="inline-spinner"></div>${message}` : message;
 }
-function hideStatus() {
-  document.getElementById("status-bar").className = "status-bar hidden";
-}
+function hideStatus() { document.getElementById("status-bar").className = "status-bar hidden"; }
 
 // ── Re-analysis polling ───────────────────────────────────────────────────────
 let _pollTimer = null;
-function stopPolling() {
-  if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
-}
+function stopPolling() { if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; } }
 
 async function pollStatus() {
   try {
-    const r = await fetch("/status");
-    const s = await r.json();
-    if (s.status === "running") {
-      setStatus("running", s.message || "Analysis running…");
-    } else if (s.status === "done") {
-      stopPolling();
-      setStatus("done", s.message || "Analysis complete.");
-      setTimeout(hideStatus, 4000);
-      setBtnState(false);
-      await loadDashboard();
-    } else if (s.status === "error") {
-      stopPolling();
-      setStatus("error", `Analysis failed: ${s.error}`);
-      setBtnState(false);
-    }
-  } catch (_) {}
+    const r = await fetch("/status"); const s = await r.json();
+    if (s.status==="running") { setStatus("running", s.message||"Analysis running…"); }
+    else if (s.status==="done") { stopPolling(); setStatus("done", s.message||"Analysis complete."); setTimeout(hideStatus,4000); setBtnState(false); await loadDashboard(); }
+    else if (s.status==="error") { stopPolling(); setStatus("error",`Analysis failed: ${s.error}`); setBtnState(false); }
+  } catch(_) {}
 }
 
 function setBtnState(running) {
   const btn = document.getElementById("btn-refresh");
-  btn.disabled = running;
-  btn.classList.toggle("spinning", running);
+  btn.disabled = running; btn.classList.toggle("spinning", running);
 }
 
 async function triggerReAnalysis() {
-  setBtnState(true);
-  setStatus("running", "Starting analysis…");
+  setBtnState(true); setStatus("running","Starting analysis…");
   try {
-    const r    = await fetch("/analyze/trigger", { method: "POST" });
-    const body = await r.json();
+    const r = await fetch("/analyze/trigger",{method:"POST"}); const body = await r.json();
     if (!body.queued && body.message) setStatus("running", body.message);
-  } catch (e) {
-    setStatus("error", `Could not start analysis: ${e.message}`);
-    setBtnState(false);
-    return;
-  }
-  stopPolling();
-  _pollTimer = setInterval(pollStatus, 3000);
+  } catch(e) { setStatus("error",`Could not start analysis: ${e.message}`); setBtnState(false); return; }
+  stopPolling(); _pollTimer = setInterval(pollStatus, 3000);
 }
 
 // ── Dashboard render ──────────────────────────────────────────────────────────
@@ -580,28 +602,16 @@ async function loadDashboard() {
   const app = document.getElementById("app");
   const res = await fetch("/top5");
 
-  if (res.status === 404) {
-    app.innerHTML = `
-      <div class="state">
-        <h2>No analysis data yet</h2>
-        <p>Click <strong>Re-analyze</strong> above, or run from the CLI:</p>
-        <code>python main.py analyze \\
-  --repo-url https://github.com/PostHog/posthog.git \\
-  --repo-dir /tmp/posthog \\
-  --max-commits 9999 \\
-  --since-days 90</code>
-      </div>`;
+  if (res.status===404) {
+    app.innerHTML=`<div class="state"><h2>No analysis data yet</h2><p>Click <strong>Re-analyze</strong> above, or run from the CLI:</p><code>python main.py analyze \\\n  --repo-url https://github.com/PostHog/posthog.git \\\n  --repo-dir /tmp/posthog \\\n  --max-commits 9999 \\\n  --since-days 90</code></div>`;
     return;
   }
-
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-  const data      = await res.json();
-  const meta      = data.meta;
-  const engineers = data.engineers;
-  const range     = meta.date_range || {};
-  const earliest  = range.earliest ? range.earliest.slice(0, 10) : "—";
-  const latest    = range.latest   ? range.latest.slice(0, 10)   : "—";
+  const data=await res.json(), meta=data.meta, engineers=data.engineers;
+  const range=meta.date_range||{};
+  const earliest=range.earliest?range.earliest.slice(0,10):"—";
+  const latest=range.latest?range.latest.slice(0,10):"—";
 
   document.getElementById("header-meta").innerHTML =
     `<span class="meta-item"><strong>${meta.commit_count}</strong> commits</span>` +
@@ -619,7 +629,7 @@ async function loadDashboard() {
 
   const profilesEl = document.createElement("div");
   profilesEl.className = "profiles";
-  engineers.forEach(eng => profilesEl.appendChild(renderProfile(eng)));
+  engineers.forEach((eng,i) => profilesEl.appendChild(renderProfile(eng,i)));
 
   app.innerHTML = "";
   app.appendChild(dashboard);
@@ -627,7 +637,7 @@ async function loadDashboard() {
 
   requestAnimationFrame(() => {
     const cv = document.getElementById("comparison-canvas");
-    if (cv) drawComparisonChart(cv, engineers, meta.avg_display_score ?? null);
+    if (cv) drawComparisonChart(cv, engineers, meta.avg_display_score??null);
   });
 }
 
@@ -635,26 +645,16 @@ async function loadDashboard() {
 async function main() {
   const app = document.getElementById("app");
   try {
-    const sr = await fetch("/status");
-    const s  = await sr.json();
-    if (s.status === "running") {
-      setBtnState(true);
-      setStatus("running", s.message || "Analysis running…");
-      _pollTimer = setInterval(pollStatus, 3000);
-      app.innerHTML = `<div class="state"><div class="spinner"></div><p>Analysis in progress…</p></div>`;
+    const sr=await fetch("/status"); const s=await sr.json();
+    if (s.status==="running") {
+      setBtnState(true); setStatus("running", s.message||"Analysis running…");
+      _pollTimer=setInterval(pollStatus,3000);
+      app.innerHTML=`<div class="state"><div class="spinner"></div><p>Analysis in progress…</p></div>`;
       return;
     }
-  } catch (_) {}
-
-  try {
-    await loadDashboard();
-  } catch (err) {
-    app.innerHTML = `
-      <div class="state">
-        <h2>Failed to load</h2>
-        <p>${err.message}</p>
-      </div>`;
-  }
+  } catch(_) {}
+  try { await loadDashboard(); }
+  catch(err) { app.innerHTML=`<div class="state"><h2>Failed to load</h2><p>${err.message}</p></div>`; }
 }
 
 main();
