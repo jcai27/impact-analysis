@@ -21,5 +21,8 @@ class Settings:
     repo_dir: str = os.getenv("IMPACT_REPO_DIR", "/tmp/posthog")
     db_path: str = os.getenv("IMPACT_DB_PATH", "impact_analyzer.db")
 
+    # GitHub API token — when set, commits are fetched via API (no disk clone needed)
+    github_token: str = os.getenv("GITHUB_TOKEN", "")
+
 
 settings = Settings()

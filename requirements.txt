@@ -4,3 +4,4 @@ networkx==3.3
 fastapi==0.115.0
 uvicorn==0.30.6
 aiofiles==23.2.1
+requests==2.32.3

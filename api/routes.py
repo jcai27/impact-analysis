@@ -41,12 +41,15 @@ def _run_analysis() -> None:
             semantic_confidence_threshold=settings.semantic_confidence_threshold,
             llm_max_calls=settings.llm_max_calls,
         )
-        _state.message = "Cloning / updating repository…"
+        def _progress(msg: str) -> None:
+            _state.message = msg
+
         result = analyzer.analyze_repo(
             repo_url=settings.repo_url,
             repo_dir=settings.repo_dir,
             max_commits=settings.default_max_commits,
             since_days=settings.default_since_days,
+            progress=_progress,
         )
         _state.commit_count = result["commit_count"]
         _state.status = "done"
