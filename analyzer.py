@@ -47,7 +47,7 @@ class ImpactAnalyzer:
         max_commits: int = 500,
         since_days: int = 90,
     ) -> dict:
-        clone_repo(repo_url, repo_dir)
+        clone_repo(repo_url, repo_dir, since_days=since_days)
         update_repo(repo_dir)
 
         commits = extract_commits(repo_dir, max_commits=max_commits, since_days=since_days)
