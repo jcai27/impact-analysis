@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Engineering Impact · PostHog</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7f7f7;
+      --surface: #ffffff;
+      --border: #e5e5e5;
+      --text: #1a1a1a;
+      --muted: #6b7280;
+      --accent: #1d4aff;
+      --orange: #f54e00;
+      --purple: #7c52ff;
+      --green: #1aa96f;
+      --gold: #f0b429;
+      --silver: #9ca3af;
+      --bronze: #b45309;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0 0 32px;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .logo { font-size: 19px; font-weight: 800; letter-spacing: -0.5px; }
+    .logo span { color: var(--accent); }
+    .header-divider { width: 1px; height: 22px; background: var(--border); }
+    .header-title { font-size: 14px; font-weight: 600; }
+    .header-meta { margin-left: auto; font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 16px; }
+    .meta-item { display: flex; align-items: center; gap: 5px; }
+    .meta-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+    /* ── Refresh button ── */
+    .btn-refresh {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s;
+      white-space: nowrap;
+    }
+    .btn-refresh:hover:not(:disabled) { background: #f3f4f6; border-color: #d1d5db; }
+    .btn-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-refresh .btn-icon { font-size: 13px; transition: transform 0.4s; }
+    .btn-refresh.spinning .btn-icon { animation: spin 0.7s linear infinite; }
+
+    /* ── Status bar ── */
+    .status-bar {
+      margin: 14px 28px 0;
+      padding: 8px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-bar.hidden { display: none; }
+    .status-bar.running { border-left: 3px solid var(--accent); color: var(--accent); }
+    .status-bar.error   { border-left: 3px solid var(--orange); color: var(--orange); }
+    .status-bar.done    { border-left: 3px solid var(--green);  color: var(--green); }
+    .inline-spinner {
+      width: 14px; height: 14px;
+      border: 2px solid #e5e5e5;
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    /* ── Impact note ── */
+    .impact-note {
+      margin: 14px 28px 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 9px 14px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .impact-note strong { color: var(--text); }
+
+    /* ── Cards grid ── */
+    .cards {
+      display: flex;
+      gap: 12px;
+      padding: 16px 28px 0;
+      align-items: flex-start;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 14px 14px;
+      flex: 1;
+      min-width: 0;
+      cursor: default;
+      transition: box-shadow 0.15s, transform 0.15s;
+    }
+    .card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .card.rank-1 { border-top: 3px solid var(--gold); }
+    .card.rank-2 { border-top: 3px solid var(--silver); }
+    .card.rank-3 { border-top: 3px solid var(--bronze); }
+
+    .rank-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 21px; height: 21px; border-radius: 50%;
+      font-size: 10px; font-weight: 700; margin-bottom: 8px;
+    }
+    .rank-1 .rank-badge { background: #fef3c7; color: #d97706; }
+    .rank-2 .rank-badge { background: #f3f4f6; color: #6b7280; }
+    .rank-3 .rank-badge { background: #fdf6ec; color: #b45309; }
+    .rank-4 .rank-badge, .rank-5 .rank-badge { background: #eff6ff; color: var(--accent); }
+
+    .engineer-name {
+      font-size: 13px; font-weight: 700;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+    .score-row { display: flex; align-items: baseline; gap: 3px; margin-bottom: 10px; }
+    .score-big { font-size: 26px; font-weight: 800; line-height: 1; }
+    .score-denom { font-size: 12px; color: var(--muted); }
+
+    .radar-wrap { display: flex; justify-content: center; margin-bottom: 10px; }
+    canvas.radar { display: block; }
+
+    .pills { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+    .pill {
+      font-size: 10px; font-weight: 600;
+      padding: 2px 6px; border-radius: 20px; white-space: nowrap;
+    }
+    .pill-feature  { background: #eff6ff; color: var(--accent); }
+    .pill-bugfix   { background: #fff7ed; color: var(--orange); }
+    .pill-refactor { background: #f5f3ff; color: var(--purple); }
+    .pill-tests    { background: #f0fdf4; color: var(--green); }
+    .pill-infra    { background: #fefce8; color: #a16207; }
+    .pill-docs     { background: #f9fafb; color: var(--muted); }
+
+    .areas { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+    .area-tag {
+      font-size: 10px; color: var(--muted);
+      background: var(--bg); border: 1px solid var(--border);
+      padding: 2px 6px; border-radius: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px;
+    }
+
+    .section-label {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: var(--muted); margin-bottom: 5px;
+    }
+
+    .highlights { list-style: none; }
+    .highlights li {
+      font-size: 10.5px; color: var(--muted); line-height: 1.5;
+      padding-left: 10px; position: relative;
+    }
+    .highlights li::before { content: "·"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+    /* ── Legend ── */
+    .legend { margin: 12px 28px 0; display: flex; gap: 18px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--muted); }
+    .legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Full-page states ── */
+    .state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 60px 32px; text-align: center; gap: 12px;
+    }
+    .state h2 { font-size: 17px; font-weight: 700; }
+    .state p { font-size: 13px; color: var(--muted); max-width: 420px; line-height: 1.6; }
+    .state code {
+      display: block; background: #f3f4f6; border: 1px solid var(--border);
+      border-radius: 6px; padding: 10px 16px; font-size: 12px;
+      font-family: "Fira Code", "Cascadia Code", "Consolas", monospace;
+      color: var(--text); text-align: left; max-width: 520px;
+      white-space: pre-wrap; word-break: break-all;
+    }
+    .btn-trigger {
+      padding: 9px 20px; border-radius: 7px; border: none;
+      background: var(--accent); color: #fff;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: opacity 0.12s;
+    }
+    .btn-trigger:hover { opacity: 0.88; }
+    .spinner {
+      width: 26px; height: 26px; border: 3px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .cards { flex-wrap: wrap; }
+      .card { min-width: calc(50% - 6px); }
+    }
+    @media (max-width: 540px) {
+      header { flex-wrap: wrap; }
+      .cards { padding: 12px; }
+      .card { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Post<span>Hog</span></div>
+  <div class="header-divider"></div>
+  <div class="header-title">Engineering Impact</div>
+  <div class="header-meta">
+    <span id="header-meta-text"></span>
+    <button class="btn-refresh" id="btn-refresh" onclick="triggerReAnalysis()">
+      <span class="btn-icon">↻</span> Re-analyze
+    </button>
+  </div>
+</header>
+
+<div class="status-bar hidden" id="status-bar"></div>
+
+<div class="impact-note">
+  <strong>How impact is measured:</strong>
+  Feature delivery (35%) · System centrality — working on critical shared code (25%) ·
+  Code ownership — primary steward of key modules (20%) ·
+  Quality maintenance — bugs fixed, refactors, tests (15%) ·
+  Cross-team collaboration (5%). Scores are relative to all engineers in the window.
+</div>
+
+<div id="app">
+  <div class="state">
+    <div class="spinner"></div>
+    <p>Loading analysis data…</p>
+  </div>
+</div>
+
+<script>
+const DIMS = ["feature_delivery", "system_impact", "ownership", "maintenance", "collaboration"];
+const DIM_LABELS = ["Feature", "System", "Ownership", "Quality", "Collab"];
+const RADAR_COLORS = ["#1d4aff", "#7c52ff", "#1aa96f", "#f54e00", "#f0b429"];
+
+// ── Radar chart ──────────────────────────────────────────────────────────────
+function drawRadar(canvas, values, color) {
+  const dpr  = window.devicePixelRatio || 1;
+  const size = canvas.clientWidth;
+  canvas.width  = size * dpr;
+  canvas.height = size * dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+
+  const cx = size / 2, cy = size / 2, r = size / 2 - 17;
+  const n = DIMS.length, step = (2 * Math.PI) / n, offset = -Math.PI / 2;
+
+  // Grid rings
+  for (let lvl = 1; lvl <= 4; lvl++) {
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const a = offset + i * step, lr = r * lvl / 4;
+      i === 0 ? ctx.moveTo(cx + lr * Math.cos(a), cy + lr * Math.sin(a))
+              : ctx.lineTo(cx + lr * Math.cos(a), cy + lr * Math.sin(a));
+    }
+    ctx.closePath();
+    ctx.strokeStyle = "#e5e5e5"; ctx.lineWidth = 1; ctx.stroke();
+  }
+
+  // Axes
+  for (let i = 0; i < n; i++) {
+    const a = offset + i * step;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
+    ctx.strokeStyle = "#e5e5e5"; ctx.lineWidth = 1; ctx.stroke();
+  }
+
+  // Data fill
+  ctx.beginPath();
+  for (let i = 0; i < n; i++) {
+    const a = offset + i * step, val = ((values[i] || 0) / 100) * r;
+    i === 0 ? ctx.moveTo(cx + val * Math.cos(a), cy + val * Math.sin(a))
+            : ctx.lineTo(cx + val * Math.cos(a), cy + val * Math.sin(a));
+  }
+  ctx.closePath();
+  ctx.fillStyle = color + "28"; ctx.fill();
+  ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+
+  // Data dots
+  for (let i = 0; i < n; i++) {
+    const a = offset + i * step, val = ((values[i] || 0) / 100) * r;
+    ctx.beginPath();
+    ctx.arc(cx + val * Math.cos(a), cy + val * Math.sin(a), 3, 0, 2 * Math.PI);
+    ctx.fillStyle = color; ctx.fill();
+  }
+
+  // Labels
+  ctx.font = "9px -apple-system,BlinkMacSystemFont,sans-serif";
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  for (let i = 0; i < n; i++) {
+    const a = offset + i * step, lr = r + 12;
+    ctx.fillStyle = "#9ca3af";
+    ctx.fillText(DIM_LABELS[i], cx + lr * Math.cos(a), cy + lr * Math.sin(a));
+  }
+}
+
+// ── Card ─────────────────────────────────────────────────────────────────────
+function pillsHTML(stats) {
+  return [
+    { key: "features",       label: "Feature",  cls: "pill-feature"  },
+    { key: "bugfixes",       label: "Bug",      cls: "pill-bugfix"   },
+    { key: "refactors",      label: "Refactor", cls: "pill-refactor" },
+    { key: "tests",          label: "Test",     cls: "pill-tests"    },
+    { key: "infrastructure", label: "Infra",    cls: "pill-infra"    },
+    { key: "docs",           label: "Doc",      cls: "pill-docs"     },
+  ]
+  .filter(p => stats[p.key] > 0)
+  .map(p => `<span class="pill ${p.cls}">${stats[p.key]} ${p.label}${stats[p.key] > 1 ? "s" : ""}</span>`)
+  .join("");
+}
+
+function renderCard(eng, idx) {
+  const color = RADAR_COLORS[idx];
+  const id    = `radar-${idx}`;
+  const areas = eng.top_areas.map(a => `<span class="area-tag" title="${a}">${a}</span>`).join("");
+  const hl    = eng.highlights.map(h => `<li>${h}</li>`).join("");
+
+  const card = document.createElement("div");
+  card.className = `card rank-${eng.rank}`;
+  card.innerHTML = `
+    <div class="rank-badge">#${eng.rank}</div>
+    <div class="engineer-name" title="${eng.name}">${eng.name}</div>
+    <div class="score-row">
+      <span class="score-big">${eng.display_score}</span>
+      <span class="score-denom">/ 10</span>
+    </div>
+    <div class="radar-wrap">
+      <canvas id="${id}" class="radar" style="width:138px;height:138px;"></canvas>
+    </div>
+    <div class="section-label">Contributions</div>
+    <div class="pills">${pillsHTML(eng.stats)}</div>
+    ${areas ? `<div class="section-label">Key areas</div><div class="areas">${areas}</div>` : ""}
+    <div class="section-label">Why they rank</div>
+    <ul class="highlights">${hl}</ul>`;
+
+  requestAnimationFrame(() => {
+    const cv = card.querySelector(`#${id}`);
+    if (cv) drawRadar(cv, DIMS.map(d => eng.radar[d] || 0), color);
+  });
+
+  return card;
+}
+
+// ── Status bar ────────────────────────────────────────────────────────────────
+function setStatus(status, message) {
+  const bar = document.getElementById("status-bar");
+  bar.className = `status-bar ${status}`;
+  bar.innerHTML = status === "running"
+    ? `<div class="inline-spinner"></div>${message}`
+    : message;
+}
+function hideStatus() {
+  document.getElementById("status-bar").className = "status-bar hidden";
+}
+
+// ── Re-analysis polling ───────────────────────────────────────────────────────
+let _pollTimer = null;
+
+function stopPolling() {
+  if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
+}
+
+async function pollStatus() {
+  try {
+    const r = await fetch("/status");
+    const s = await r.json();
+
+    if (s.status === "running") {
+      setStatus("running", s.message || "Analysis running…");
+    } else if (s.status === "done") {
+      stopPolling();
+      setStatus("done", s.message || "Analysis complete.");
+      setTimeout(hideStatus, 4000);
+      setBtnState(false);
+      await loadDashboard();
+    } else if (s.status === "error") {
+      stopPolling();
+      setStatus("error", `Analysis failed: ${s.error}`);
+      setBtnState(false);
+    }
+  } catch (_) { /* network error — keep polling */ }
+}
+
+function setBtnState(running) {
+  const btn = document.getElementById("btn-refresh");
+  btn.disabled = running;
+  btn.classList.toggle("spinning", running);
+}
+
+async function triggerReAnalysis() {
+  setBtnState(true);
+  setStatus("running", "Starting analysis…");
+  try {
+    const r = await fetch("/analyze/trigger", { method: "POST" });
+    const body = await r.json();
+    if (!body.queued && body.message) {
+      setStatus("running", body.message);
+    }
+  } catch (e) {
+    setStatus("error", `Could not start analysis: ${e.message}`);
+    setBtnState(false);
+    return;
+  }
+  stopPolling();
+  _pollTimer = setInterval(pollStatus, 3000);
+}
+
+// ── Dashboard render ──────────────────────────────────────────────────────────
+async function loadDashboard() {
+  const app = document.getElementById("app");
+  const res = await fetch("/top5");
+
+  if (res.status === 404) {
+    app.innerHTML = `
+      <div class="state">
+        <h2>No analysis data yet</h2>
+        <p>Click <strong>Re-analyze</strong> above, or run from the CLI:</p>
+        <code>python main.py analyze \\
+  --repo-url https://github.com/PostHog/posthog.git \\
+  --repo-dir /tmp/posthog \\
+  --max-commits 500 \\
+  --since-days 90</code>
+      </div>`;
+    return;
+  }
+
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+  const data = await res.json();
+  const range = data.meta.date_range || {};
+  const earliest = range.earliest ? range.earliest.slice(0, 10) : "—";
+  const latest   = range.latest   ? range.latest.slice(0, 10)   : "—";
+
+  document.getElementById("header-meta-text").innerHTML =
+    `<span class="meta-item"><span class="meta-dot"></span>${data.meta.commit_count} commits</span>` +
+    `<span class="meta-item">${earliest} → ${latest}</span>` +
+    `<span class="meta-item">${data.meta.engineer_count} engineers</span>`;
+
+  const cardsEl = document.createElement("div");
+  cardsEl.className = "cards";
+  data.engineers.forEach((eng, i) => cardsEl.appendChild(renderCard(eng, i)));
+
+  const legend = document.createElement("div");
+  legend.className = "legend";
+  legend.innerHTML = DIM_LABELS.map((l, i) =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${RADAR_COLORS[i]}"></div>${l}</div>`
+  ).join("");
+
+  app.innerHTML = "";
+  app.appendChild(cardsEl);
+  app.appendChild(legend);
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+async function main() {
+  const app = document.getElementById("app");
+
+  // Check if analysis is already in progress (e.g. server just started and
+  // a previous trigger is still running).
+  try {
+    const sr = await fetch("/status");
+    const s  = await sr.json();
+    if (s.status === "running") {
+      setBtnState(true);
+      setStatus("running", s.message || "Analysis running…");
+      _pollTimer = setInterval(pollStatus, 3000);
+      app.innerHTML = `<div class="state"><div class="spinner"></div><p>Analysis in progress…</p></div>`;
+      return;
+    }
+  } catch (_) { /* ignore */ }
+
+  try {
+    await loadDashboard();
+  } catch (err) {
+    app.innerHTML = `
+      <div class="state">
+        <h2>Failed to load</h2>
+        <p>${err.message}</p>
+      </div>`;
+  }
+}
+
+main();
+</script>
+</body>
+</html>
