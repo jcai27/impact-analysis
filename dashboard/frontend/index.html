@@ -447,7 +447,6 @@ const _expandBackdropEl = document.getElementById("expand-backdrop");
 function showExpand(eng, idx) {
   const color   = RANK_COLORS[idx];
   const bubble  = _expandBubbleEl;
-  const backdrop = _expandBackdropEl;
 
   const areas   = eng.top_areas.map(a=>`<span class="eb-area-tag">${a}</span>`).join("");
   const bullets = eng.highlights.map(h=>`<li>${h}</li>`).join("");
@@ -500,7 +499,7 @@ function showExpand(eng, idx) {
       </div>
     </div>`;
 
-  backdrop.classList.add("visible");
+  _expandBackdropEl.classList.remove("visible");
   bubble.classList.add("visible");
 
   requestAnimationFrame(() => {
@@ -513,11 +512,6 @@ function hideExpand() {
   _expandBubbleEl.classList.remove("visible");
   _expandBackdropEl.classList.remove("visible");
 }
-
-// Sticky behavior: bubble stays open until user clicks outside.
-_expandBackdropEl.addEventListener("click", (event) => {
-  if (event.target === _expandBackdropEl) hideExpand();
-});
 
 // ── Profile card ──────────────────────────────────────────────────────────────
 function renderProfile(eng, idx) {
@@ -549,6 +543,7 @@ function renderProfile(eng, idx) {
     </div>`;
 
   card.addEventListener("mouseenter", () => showExpand(eng, idx));
+  card.addEventListener("mouseleave", hideExpand);
 
   return card;
 }
