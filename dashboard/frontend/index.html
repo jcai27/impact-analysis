@@ -441,12 +441,10 @@ function pillsHTML(stats) {
 }
 
 // ── Expand bubble ─────────────────────────────────────────────────────────────
-let _hideTimer = null;
 const _expandBubbleEl = document.getElementById("expand-bubble");
 const _expandBackdropEl = document.getElementById("expand-backdrop");
 
 function showExpand(eng, idx) {
-  clearTimeout(_hideTimer);
   const color   = RANK_COLORS[idx];
   const bubble  = _expandBubbleEl;
   const backdrop = _expandBackdropEl;
@@ -516,13 +514,7 @@ function hideExpand() {
   _expandBackdropEl.classList.remove("visible");
 }
 
-// Keep bubble open when cursor moves between profile card and bubble.
-_expandBubbleEl.addEventListener("mouseenter", () => clearTimeout(_hideTimer));
-_expandBubbleEl.addEventListener("mouseleave", (event) => {
-  const next = event.relatedTarget;
-  if (next instanceof Element && next.closest(".profile-card")) return;
-  _hideTimer = setTimeout(hideExpand, 120);
-});
+// Sticky behavior: bubble stays open until user clicks outside.
 _expandBackdropEl.addEventListener("click", (event) => {
   if (event.target === _expandBackdropEl) hideExpand();
 });
@@ -556,15 +548,7 @@ function renderProfile(eng, idx) {
       <ul class="profile-bullets">${bullets}</ul>
     </div>`;
 
-  card.addEventListener("mouseenter", () => {
-    clearTimeout(_hideTimer);
-    showExpand(eng, idx);
-  });
-  card.addEventListener("mouseleave", (event) => {
-    const next = event.relatedTarget;
-    if (next instanceof Element && next.closest("#expand-bubble")) return;
-    _hideTimer = setTimeout(hideExpand, 120);
-  });
+  card.addEventListener("mouseenter", () => showExpand(eng, idx));
 
   return card;
 }
