@@ -69,8 +69,4 @@ curl -s -X POST http://127.0.0.1:8000/repo/analyze \
 
 This keeps cost low now while preserving a clear upgrade path to full LLM mode later.
 
-If you enable OpenAI provider, install SDK:
-
-```bash
-pip install openai
-```
+OpenAI SDK is included in `requirements.txt`; set `OPENAI_API_KEY` to enable LLM summaries.
