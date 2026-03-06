@@ -43,7 +43,7 @@ class GitHubFetcher:
     def fetch_commit_records(
         self,
         since_days: int = 90,
-        max_commits: int = 500,
+        max_commits: int = 9999,
         progress: Callable[[str], None] | None = None,
     ) -> list[dict]:
         """Return a flat list of commit records ready for the analysis pipeline.

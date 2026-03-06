@@ -364,7 +364,7 @@ function renderCard(eng, idx) {
     <div class="section-label">Contributions</div>
     <div class="pills">${pillsHTML(eng.stats)}</div>
     ${areas ? `<div class="section-label">Key areas</div><div class="areas">${areas}</div>` : ""}
-    <div class="section-label">Why they rank</div>
+    <div class="section-label">${eng.summary_source === 'llm' ? 'Impact summary' : 'Why they rank'}</div>
     <ul class="highlights">${hl}</ul>`;
 
   requestAnimationFrame(() => {

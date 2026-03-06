@@ -169,7 +169,7 @@ class Database:
                 author_data[author]["complexities"][row["complexity"]] += 1
             if row["area"]:
                 author_data[author]["areas"][row["area"]] += 1
-            if row["description"] and len(author_data[author]["descriptions"]) < 5:
+            if row["description"] and len(author_data[author]["descriptions"]) < 20:
                 author_data[author]["descriptions"].append(row["description"])
 
         author_stats: dict = {

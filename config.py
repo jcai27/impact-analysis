@@ -8,7 +8,7 @@ from dataclasses import dataclass
 class Settings:
     database_url: str = os.getenv("IMPACT_DB_URL", "sqlite:///impact_analyzer.db")
     default_branch: str = os.getenv("IMPACT_DEFAULT_BRANCH", "HEAD")
-    default_max_commits: int = int(os.getenv("IMPACT_MAX_COMMITS", "500"))
+    default_max_commits: int = int(os.getenv("IMPACT_MAX_COMMITS", "9999"))
     default_since_days: int = int(os.getenv("IMPACT_SINCE_DAYS", "90"))
     semantic_mode: str = os.getenv("IMPACT_SEMANTIC_MODE", "hybrid")
     semantic_confidence_threshold: float = float(

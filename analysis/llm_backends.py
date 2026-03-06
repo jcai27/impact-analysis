@@ -79,7 +79,9 @@ class OpenAIJSONBackend(LLMBackend):
 
 
 def build_llm_backend() -> LLMBackend:
-    provider = os.getenv("IMPACT_LLM_PROVIDER", "none").strip().lower()
-    if provider == "openai":
+    provider = os.getenv("IMPACT_LLM_PROVIDER", "").strip().lower()
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    # Auto-enable OpenAI when the key is present unless explicitly disabled.
+    if provider == "openai" or (api_key and provider not in ("none", "noop")):
         return OpenAIJSONBackend()
     return NoOpLLMBackend()

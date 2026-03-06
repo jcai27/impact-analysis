@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import os
 import threading
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Literal
 
@@ -31,6 +32,9 @@ class AnalysisState:
 _state = AnalysisState()
 _lock = threading.Lock()
 
+# LLM-generated summaries cached between requests; cleared on new analysis.
+_summaries: dict[str, list[str]] = {}
+
 
 def _run_analysis() -> None:
     global _state
@@ -41,6 +45,7 @@ def _run_analysis() -> None:
             semantic_confidence_threshold=settings.semantic_confidence_threshold,
             llm_max_calls=settings.llm_max_calls,
         )
+
         def _progress(msg: str) -> None:
             _state.message = msg
 
@@ -62,7 +67,90 @@ def _run_analysis() -> None:
         _state.message = f"Error: {exc}"
 
 
-# ── Highlight generation ──────────────────────────────────────────────────────
+# ── Bot detection ─────────────────────────────────────────────────────────────
+
+def _is_bot(name: str) -> bool:
+    lower = name.lower()
+    return (
+        "[bot]" in lower
+        or lower.endswith("-bot")
+        or "github-actions" in lower
+        or lower in {"dependabot", "renovate", "snyk-bot", "codecov-commenter"}
+    )
+
+
+# ── LLM summaries ─────────────────────────────────────────────────────────────
+
+def _generate_llm_summaries(
+    engineers: list[dict],
+    author_stats: dict,
+) -> dict[str, list[str]]:
+    """Call OpenAI to generate rich per-engineer bullet summaries.
+
+    Returns a dict mapping engineer name → list of bullet strings.
+    Falls back gracefully to an empty dict on any error.
+    """
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        return {}
+
+    try:
+        from openai import OpenAI
+        client = OpenAI(api_key=api_key)
+    except Exception:
+        return {}
+
+    model = os.getenv("IMPACT_LLM_MODEL", "gpt-4.1-mini")
+    summaries: dict[str, list[str]] = {}
+
+    for eng in engineers:
+        name = eng["name"]
+        stats = eng["stats"]
+        top_areas = eng["top_areas"]
+        descriptions = author_stats.get(name, {}).get("descriptions", [])
+
+        commits_text = "\n".join(
+            f"- {d}" for d in descriptions[:20] if d and d.strip()
+        )
+        if not commits_text:
+            continue
+
+        prompt = (
+            "You are writing for an engineering leadership dashboard at PostHog.\n\n"
+            f"Engineer: {name}\n"
+            f"Last 90 days: {stats['commits']} commits — "
+            f"{stats['features']} features, {stats['bugfixes']} bug fixes, "
+            f"{stats['refactors']} refactors, {stats['tests']} tests written\n"
+            f"Key areas: {', '.join(top_areas) if top_areas else 'various'}\n\n"
+            f"Recent commit messages:\n{commits_text}\n\n"
+            "Write exactly 3 bullet points (start each line with •) describing what "
+            "this engineer accomplished. Be specific about what they built or fixed based "
+            "on the commits above. Focus on technical and business impact. "
+            "Each bullet is one sentence, max 110 characters. Plain text only."
+        )
+
+        try:
+            resp = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=220,
+                temperature=0.3,
+            )
+            text = (resp.choices[0].message.content or "").strip()
+            bullets = [
+                line.lstrip("•·- ").strip()
+                for line in text.splitlines()
+                if line.strip() and not line.strip().startswith("#")
+            ][:3]
+            if bullets:
+                summaries[name] = bullets
+        except Exception:
+            pass
+
+    return summaries
+
+
+# ── Heuristic highlights fallback ─────────────────────────────────────────────
 
 def _generate_highlights(
     stats: dict,
@@ -115,7 +203,6 @@ def health() -> dict:
 
 @router.get("/status")
 def analysis_status() -> dict:
-    """Return the current background analysis state."""
     return {
         "status": _state.status,
         "started_at": _state.started_at,
@@ -128,9 +215,7 @@ def analysis_status() -> dict:
 
 @router.post("/analyze/trigger")
 def trigger_analysis() -> dict:
-    """Kick off a background analysis run using the server's configured repo.
-    Returns immediately; poll /status to track progress."""
-    global _state
+    global _state, _summaries
 
     with _lock:
         if _state.status == "running":
@@ -141,6 +226,7 @@ def trigger_analysis() -> dict:
             started_at=datetime.now(timezone.utc).isoformat(),
             message="Starting analysis…",
         )
+        _summaries = {}  # invalidate cached summaries on new analysis
 
     t = threading.Thread(target=_run_analysis, daemon=True)
     t.start()
@@ -150,7 +236,6 @@ def trigger_analysis() -> dict:
 
 @router.post("/repo/analyze")
 def analyze_repo(payload: "AnalyzeRequest") -> dict:
-    """Synchronous analysis with a custom repo — used by the CLI / direct API consumers."""
     analyzer = ImpactAnalyzer(
         db_path=payload.db_path,
         semantic_mode=payload.semantic_mode,
@@ -168,15 +253,13 @@ def analyze_repo(payload: "AnalyzeRequest") -> dict:
 @router.get("/engineers")
 def list_engineers(db_path: str = settings.db_path) -> dict:
     analyzer = ImpactAnalyzer(db_path=db_path)
-    engineers = analyzer.db.list_engineers()
-    return {"engineers": engineers}
+    return {"engineers": analyzer.db.list_engineers()}
 
 
 @router.get("/engineer/{name}")
 def engineer_detail(name: str, db_path: str = settings.db_path) -> dict:
     analyzer = ImpactAnalyzer(db_path=db_path)
-    metrics = analyzer.db.get_engineer_metrics(name)
-    return {"engineer": name, "metrics": metrics}
+    return {"engineer": name, "metrics": analyzer.db.get_engineer_metrics(name)}
 
 
 @router.get("/metrics")
@@ -188,7 +271,8 @@ def metrics(db_path: str = settings.db_path) -> dict:
 
 @router.get("/top5")
 def top5_engineers(db_path: str = settings.db_path) -> dict:
-    """Return the top 5 most impactful engineers with enriched dashboard data."""
+    global _summaries
+
     analyzer = ImpactAnalyzer(db_path=db_path)
     data = analyzer.db.get_dashboard_data()
 
@@ -199,17 +283,20 @@ def top5_engineers(db_path: str = settings.db_path) -> dict:
     if not author_metrics:
         raise HTTPException(status_code=404, detail="No analysis data found. Run analysis first.")
 
+    # Filter bots before ranking.
+    human_metrics = {n: m for n, m in author_metrics.items() if not _is_bot(n)}
+
     ranked = sorted(
-        author_metrics.items(),
+        human_metrics.items(),
         key=lambda kv: kv[1].get("impact_score", 0.0),
         reverse=True,
     )[:5]
 
     max_vals: dict[str, float] = {
-        k: max((m.get(k, 0.0) for _, m in author_metrics.items()), default=1.0) or 1.0
+        k: max((m.get(k, 0.0) for _, m in human_metrics.items()), default=1.0) or 1.0
         for k in DIMENSION_KEYS
     }
-    max_impact = max(m.get("impact_score", 0.0) for _, m in author_metrics.items()) or 1.0
+    max_impact = max(m.get("impact_score", 0.0) for _, m in human_metrics.items()) or 1.0
 
     engineers = []
     for rank, (name, eng_metrics) in enumerate(ranked, start=1):
@@ -226,8 +313,6 @@ def top5_engineers(db_path: str = settings.db_path) -> dict:
 
         raw_scores = {k: eng_metrics.get(k, 0.0) for k in DIMENSION_KEYS}
         normalized_radar = {k: round(raw_scores[k] / max_vals[k] * 100) for k in DIMENSION_KEYS}
-
-        highlights = _generate_highlights(stats, types, complexities, normalized_radar, top_areas)
 
         engineers.append(
             {
@@ -247,16 +332,33 @@ def top5_engineers(db_path: str = settings.db_path) -> dict:
                     "high_complexity": complexities.get("high", 0),
                 },
                 "top_areas": top_areas,
-                "highlights": highlights,
+                # Heuristic highlights as baseline; replaced below if LLM succeeds.
+                "highlights": _generate_highlights(
+                    stats, types, complexities, normalized_radar, top_areas
+                ),
+                "summary_source": "heuristic",
             }
         )
+
+    # Generate LLM summaries for engineers not yet cached.
+    need_summaries = [e for e in engineers if e["name"] not in _summaries]
+    if need_summaries:
+        new = _generate_llm_summaries(need_summaries, author_stats)
+        _summaries.update(new)
+
+    # Attach cached LLM summaries (overwrite heuristic highlights when available).
+    for eng in engineers:
+        llm_bullets = _summaries.get(eng["name"])
+        if llm_bullets:
+            eng["highlights"] = llm_bullets
+            eng["summary_source"] = "llm"
 
     total_commits = sum(s.get("commits", 0) for s in author_stats.values())
 
     return {
         "meta": {
             "commit_count": total_commits,
-            "engineer_count": len(author_metrics),
+            "engineer_count": len(human_metrics),
             "date_range": date_range,
         },
         "engineers": engineers,
@@ -266,7 +368,7 @@ def top5_engineers(db_path: str = settings.db_path) -> dict:
 class AnalyzeRequest(BaseModel):
     repo_url: str = Field(..., description="Repository clone URL")
     repo_dir: str = Field(..., description="Local path to clone/update repo")
-    max_commits: int = Field(default=500, ge=1, le=5000)
+    max_commits: int = Field(default=9999, ge=1, le=99999)
     since_days: int = Field(default=90, ge=1, le=3650)
     db_path: str = Field(default=settings.db_path)
     semantic_mode: str = Field(default="hybrid", pattern="^(heuristic|hybrid|llm)$")
