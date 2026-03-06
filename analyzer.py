@@ -49,7 +49,7 @@ class ImpactAnalyzer:
         self,
         repo_url: str,
         repo_dir: str,
-        max_commits: int = 500,
+        max_commits: int = 9999,
         since_days: int = 90,
         progress: Callable[[str], None] | None = None,
     ) -> dict:

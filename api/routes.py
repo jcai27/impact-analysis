@@ -355,11 +355,15 @@ def top5_engineers(db_path: str = settings.db_path) -> dict:
 
     total_commits = sum(s.get("commits", 0) for s in author_stats.values())
 
+    avg_impact_raw = sum(m.get("impact_score", 0.0) for m in human_metrics.values()) / len(human_metrics)
+    avg_display = round(avg_impact_raw / max_impact * 10, 1)
+
     return {
         "meta": {
             "commit_count": total_commits,
             "engineer_count": len(human_metrics),
             "date_range": date_range,
+            "avg_display_score": avg_display,
         },
         "engineers": engineers,
     }

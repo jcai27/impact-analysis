@@ -25,7 +25,7 @@ def _files_changed(commit: Commit) -> list[str]:
 def extract_commits(
     repo_path: str,
     rev: str = "HEAD",
-    max_commits: int = 500,
+    max_commits: int = 9999,
     since_days: int = 90,
 ) -> list[CommitRecord]:
     repo = Repo(repo_path)
