@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import json
 import os
 import threading
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
 from typing import Literal
 
 from fastapi import APIRouter, HTTPException
@@ -31,9 +34,133 @@ class AnalysisState:
 
 _state = AnalysisState()
 _lock = threading.Lock()
+_data_dir = Path(settings.data_dir)
+_latest_analysis_path = _data_dir / "latest_analysis.json"
 
 # LLM-generated summaries cached between requests; cleared on new analysis.
-_summaries: dict[str, list[str]] = {}
+_summaries: dict[str, dict[str, Any]] = {}
+
+
+def _load_cached_top5() -> dict[str, Any] | None:
+    if not _latest_analysis_path.exists():
+        return None
+    try:
+        return json.loads(_latest_analysis_path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _save_cached_top5(payload: dict[str, Any]) -> None:
+    _data_dir.mkdir(parents=True, exist_ok=True)
+    temp_path = _latest_analysis_path.with_suffix(".tmp")
+    temp_path.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
+    temp_path.replace(_latest_analysis_path)
+
+
+def _build_top5_payload(db_path: str, include_llm: bool = True) -> dict[str, Any]:
+    global _summaries
+
+    analyzer = ImpactAnalyzer(db_path=db_path)
+    data = analyzer.db.get_dashboard_data()
+
+    author_metrics = data["author_metrics"]
+    author_stats = data["author_stats"]
+    date_range = data["date_range"]
+
+    if not author_metrics:
+        raise HTTPException(status_code=404, detail="No analysis data found. Run analysis first.")
+
+    # Filter bots before ranking.
+    human_metrics = {n: m for n, m in author_metrics.items() if not _is_bot(n)}
+
+    ranked = sorted(
+        human_metrics.items(),
+        key=lambda kv: kv[1].get("impact_score", 0.0),
+        reverse=True,
+    )[:5]
+
+    max_vals: dict[str, float] = {
+        k: max((m.get(k, 0.0) for _, m in human_metrics.items()), default=1.0) or 1.0
+        for k in DIMENSION_KEYS
+    }
+    max_impact = max(m.get("impact_score", 0.0) for _, m in human_metrics.items()) or 1.0
+
+    engineers = []
+    for rank, (name, eng_metrics) in enumerate(ranked, start=1):
+        stats = author_stats.get(name, {})
+        types = stats.get("types", {})
+        complexities = stats.get("complexities", {})
+        areas = stats.get("areas", {})
+
+        top_areas = [
+            area
+            for area, _ in sorted(areas.items(), key=lambda x: x[1], reverse=True)
+            if area and area not in ("unknown", "")
+        ][:4]
+
+        raw_scores = {k: eng_metrics.get(k, 0.0) for k in DIMENSION_KEYS}
+        normalized_radar = {k: round(raw_scores[k] / max_vals[k] * 100) for k in DIMENSION_KEYS}
+
+        engineers.append(
+            {
+                "rank": rank,
+                "name": name,
+                "impact_score": round(eng_metrics.get("impact_score", 0.0), 3),
+                "display_score": round(eng_metrics.get("impact_score", 0.0) / max_impact * 10, 1),
+                "radar": normalized_radar,
+                "stats": {
+                    "commits": stats.get("commits", 0),
+                    "features": types.get("feature", 0),
+                    "bugfixes": types.get("bugfix", 0),
+                    "refactors": types.get("refactor", 0),
+                    "tests": types.get("tests", 0),
+                    "docs": types.get("docs", 0),
+                    "infrastructure": types.get("infrastructure", 0),
+                    "high_complexity": complexities.get("high", 0),
+                },
+                # Heuristic highlights as baseline; optionally replaced below if LLM succeeds.
+                "highlights": _generate_highlights(
+                    stats, types, complexities, normalized_radar, top_areas
+                ),
+                "summary_source": "heuristic",
+                "top_areas": top_areas,
+            }
+        )
+
+    if include_llm:
+        # Generate LLM summaries for engineers not yet cached.
+        need_summaries = [e for e in engineers if e["name"] not in _summaries]
+        if need_summaries:
+            new = _generate_llm_summaries(need_summaries, author_stats)
+            _summaries.update(new)
+
+        # Attach cached LLM summaries (overwrite heuristic highlights when available).
+        for eng in engineers:
+            llm_data = _summaries.get(eng["name"])
+            if llm_data:
+                eng["highlights"] = llm_data["bullets"]
+                eng["skills"] = llm_data.get("skills", "")
+                eng["summary_source"] = "llm"
+            else:
+                eng.setdefault("skills", "")
+    else:
+        for eng in engineers:
+            eng.setdefault("skills", "")
+
+    total_commits = sum(s.get("commits", 0) for s in author_stats.values())
+    avg_impact_raw = sum(m.get("impact_score", 0.0) for m in human_metrics.values()) / len(human_metrics)
+    avg_display = round(avg_impact_raw / max_impact * 10, 1)
+
+    return {
+        "meta": {
+            "commit_count": total_commits,
+            "engineer_count": len(human_metrics),
+            "date_range": date_range,
+            "avg_display_score": avg_display,
+        },
+        "engineers": engineers,
+        "cached_at": datetime.now(timezone.utc).isoformat(),
+    }
 
 
 def _run_analysis() -> None:
@@ -56,6 +183,13 @@ def _run_analysis() -> None:
             since_days=settings.default_since_days,
             progress=_progress,
         )
+        # Persist a fresh snapshot for fast dashboard loads.
+        try:
+            payload = _build_top5_payload(settings.db_path, include_llm=True)
+            _save_cached_top5(payload)
+        except Exception:
+            pass
+
         _state.commit_count = result["commit_count"]
         _state.status = "done"
         _state.finished_at = datetime.now(timezone.utc).isoformat()
@@ -285,105 +419,13 @@ def metrics(db_path: str = settings.db_path) -> dict:
 
 @router.get("/top5")
 def top5_engineers(db_path: str = settings.db_path) -> dict:
-    global _summaries
+    cached = _load_cached_top5() if db_path == settings.db_path else None
+    if cached:
+        return cached
 
-    analyzer = ImpactAnalyzer(db_path=db_path)
-    data = analyzer.db.get_dashboard_data()
-
-    author_metrics = data["author_metrics"]
-    author_stats = data["author_stats"]
-    date_range = data["date_range"]
-
-    if not author_metrics:
-        raise HTTPException(status_code=404, detail="No analysis data found. Run analysis first.")
-
-    # Filter bots before ranking.
-    human_metrics = {n: m for n, m in author_metrics.items() if not _is_bot(n)}
-
-    ranked = sorted(
-        human_metrics.items(),
-        key=lambda kv: kv[1].get("impact_score", 0.0),
-        reverse=True,
-    )[:5]
-
-    max_vals: dict[str, float] = {
-        k: max((m.get(k, 0.0) for _, m in human_metrics.items()), default=1.0) or 1.0
-        for k in DIMENSION_KEYS
-    }
-    max_impact = max(m.get("impact_score", 0.0) for _, m in human_metrics.items()) or 1.0
-
-    engineers = []
-    for rank, (name, eng_metrics) in enumerate(ranked, start=1):
-        stats = author_stats.get(name, {})
-        types = stats.get("types", {})
-        complexities = stats.get("complexities", {})
-        areas = stats.get("areas", {})
-
-        top_areas = [
-            area
-            for area, _ in sorted(areas.items(), key=lambda x: x[1], reverse=True)
-            if area and area not in ("unknown", "")
-        ][:4]
-
-        raw_scores = {k: eng_metrics.get(k, 0.0) for k in DIMENSION_KEYS}
-        normalized_radar = {k: round(raw_scores[k] / max_vals[k] * 100) for k in DIMENSION_KEYS}
-
-        engineers.append(
-            {
-                "rank": rank,
-                "name": name,
-                "impact_score": round(eng_metrics.get("impact_score", 0.0), 3),
-                "display_score": round(eng_metrics.get("impact_score", 0.0) / max_impact * 10, 1),
-                "radar": normalized_radar,
-                "stats": {
-                    "commits": stats.get("commits", 0),
-                    "features": types.get("feature", 0),
-                    "bugfixes": types.get("bugfix", 0),
-                    "refactors": types.get("refactor", 0),
-                    "tests": types.get("tests", 0),
-                    "docs": types.get("docs", 0),
-                    "infrastructure": types.get("infrastructure", 0),
-                    "high_complexity": complexities.get("high", 0),
-                },
-                "top_areas": top_areas,
-                # Heuristic highlights as baseline; replaced below if LLM succeeds.
-                "highlights": _generate_highlights(
-                    stats, types, complexities, normalized_radar, top_areas
-                ),
-                "summary_source": "heuristic",
-            }
-        )
-
-    # Generate LLM summaries for engineers not yet cached.
-    need_summaries = [e for e in engineers if e["name"] not in _summaries]
-    if need_summaries:
-        new = _generate_llm_summaries(need_summaries, author_stats)
-        _summaries.update(new)
-
-    # Attach cached LLM summaries (overwrite heuristic highlights when available).
-    for eng in engineers:
-        llm_data = _summaries.get(eng["name"])
-        if llm_data:
-            eng["highlights"] = llm_data["bullets"]
-            eng["skills"] = llm_data.get("skills", "")
-            eng["summary_source"] = "llm"
-        else:
-            eng.setdefault("skills", "")
-
-    total_commits = sum(s.get("commits", 0) for s in author_stats.values())
-
-    avg_impact_raw = sum(m.get("impact_score", 0.0) for m in human_metrics.values()) / len(human_metrics)
-    avg_display = round(avg_impact_raw / max_impact * 10, 1)
-
-    return {
-        "meta": {
-            "commit_count": total_commits,
-            "engineer_count": len(human_metrics),
-            "date_range": date_range,
-            "avg_display_score": avg_display,
-        },
-        "engineers": engineers,
-    }
+    payload = _build_top5_payload(db_path, include_llm=True)
+    _save_cached_top5(payload)
+    return payload
 
 
 class AnalyzeRequest(BaseModel):

@@ -57,6 +57,7 @@ curl -s -X POST http://127.0.0.1:8000/repo/analyze \
   - `IMPACT_SEMANTIC_MODE=hybrid|heuristic|llm`
   - `IMPACT_SEMANTIC_CONFIDENCE_THRESHOLD=0.75`
   - `IMPACT_LLM_MAX_CALLS=100`
+  - `IMPACT_DATA_DIR=data` (stores cached `/top5` payload at `latest_analysis.json`)
   - `IMPACT_LLM_PROVIDER=openai` (optional)
   - `IMPACT_LLM_MODEL=gpt-4.1-mini` (optional)
   - `OPENAI_API_KEY=...` (required only when provider is enabled)
